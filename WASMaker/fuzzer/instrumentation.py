@@ -19,30 +19,30 @@ indirect_functype_idx_global = None
 number_count_global = None
 instr_opcode_global = None
 
+
 def instrumentation(binary):
     global string_pointer_val, string_pointer_global, temp_val, temp_global, LF_char_global, divider_offset_val, divider_offset_global, funcidx_global, indirect_funcidx_global, indirect_functype_idx_global, number_count_global
 
     import_rewriter = SectionRewriter.ImportExport(binary)
     import_rewriter.append_import_function("wasi_snapshot_preview1", "fd_write",
                                            [ValTypeI32, ValTypeI32, ValTypeI32, ValTypeI32], [ValTypeI32])
-    # export the memory
+
     export_rewriter = import_rewriter
     export_rewriter.append_export_memory(0)
-    # append global variables
+
     global_rewriter = SectionRewriter.GlobalVariable(binary)
     divider_offset_val = 2000000000
-    divider_offset_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), divider_offset_val)  # 这里给自己设
+    divider_offset_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), divider_offset_val)
     string_pointer_val = 2000000100
-    string_pointer_global = global_rewriter.append_global_variable(GlobalType(ValTypeI64, 1), string_pointer_val)  # 这里给自己设
+    string_pointer_global = global_rewriter.append_global_variable(GlobalType(ValTypeI64, 1), string_pointer_val)
     temp_val = 2000000200
-    temp_global = global_rewriter.append_global_variable(GlobalType(ValTypeV128, 1), temp_val)  # 这里也给自己设
+    temp_global = global_rewriter.append_global_variable(GlobalType(ValTypeV128, 1), temp_val)
     LF_char_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), 0)
 
     funcidx_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), 0)
     indirect_funcidx_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), 0)
     indirect_functype_idx_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), 0)
     number_count_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), 0)
-
 
     i32_global_list = []
     for i in range(20):
@@ -65,7 +65,7 @@ def instrumentation(binary):
         v128_global_list.append(global_rewriter.append_global_variable(GlobalType(ValTypeV128, 1), 0))
 
     mem_rewriter = SectionRewriter.LinearMemory(binary)
-    divider_string_offset = 2000000000  # 它等于前面divider_offset的值
+    divider_string_offset = 2000000000
     mem_list = binary.module.mem_sec
     if mem_list == []:
         binary.module.mem_sec.append(Limits(1, 65536, 65536))
@@ -73,7 +73,8 @@ def instrumentation(binary):
 
     for code in binary.module.code_sec:
         code.expr = instr_instrumentation(code.expr, binary,
-                          [i32_global_list, i64_global_list, f32_global_list, f64_global_list, v128_global_list])
+                                          [i32_global_list, i64_global_list, f32_global_list, f64_global_list,
+                                           v128_global_list])
 
 
 def binary_function_instrumentation(binary, funcidx):
@@ -82,17 +83,17 @@ def binary_function_instrumentation(binary, funcidx):
     import_rewriter = SectionRewriter.ImportExport(binary)
     import_rewriter.append_import_function("wasi_snapshot_preview1", "fd_write",
                                            [ValTypeI32, ValTypeI32, ValTypeI32, ValTypeI32], [ValTypeI32])
-    # export the memory
+
     export_rewriter = import_rewriter
     export_rewriter.append_export_memory(0)
-    # append global variables
+
     global_rewriter = SectionRewriter.GlobalVariable(binary)
     divider_offset_val = 2000000000
-    divider_offset_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), divider_offset_val)  # 这里给自己设
+    divider_offset_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), divider_offset_val)
     string_pointer_val = 2000000100
-    string_pointer_global = global_rewriter.append_global_variable(GlobalType(ValTypeI64, 1), string_pointer_val)  # 这里给自己设
+    string_pointer_global = global_rewriter.append_global_variable(GlobalType(ValTypeI64, 1), string_pointer_val)
     temp_val = 2000000200
-    temp_global = global_rewriter.append_global_variable(GlobalType(ValTypeV128, 1), temp_val)  # 这里也给自己设
+    temp_global = global_rewriter.append_global_variable(GlobalType(ValTypeV128, 1), temp_val)
     LF_char_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), 0)
 
     funcidx_global = global_rewriter.append_global_variable(GlobalType(ValTypeI32, 1), 0)
@@ -107,16 +108,16 @@ def binary_function_instrumentation(binary, funcidx):
     F64_global = global_rewriter.append_global_variable(GlobalType(ValTypeF64, 1), 0)
     V128_global = global_rewriter.append_global_variable(GlobalType(ValTypeV128, 1), 0)
 
-
     mem_rewriter = SectionRewriter.LinearMemory(binary)
-    divider_string_offset = 2000000000  # 它等于前面divider_offset的值
+    divider_string_offset = 2000000000
     mem_list = binary.module.mem_sec
     if mem_list == []:
         binary.module.mem_sec.append(Limits(1, 65536, 65536))
     mem_rewriter.insert_linear_memory(divider_string_offset, "==========\n".encode('utf-8'))
 
     code = binary.module.code_sec[funcidx]
-    code.expr = function_instrumentation(code.expr, binary, funcidx, [I32_global, I64_global, F32_global, F64_global, V128_global])
+    code.expr = function_instrumentation(code.expr, binary, funcidx,
+                                         [I32_global, I64_global, F32_global, F64_global, V128_global])
 
 
 def get_variable_type_size(variable_type):
@@ -187,7 +188,7 @@ def get_store_variable_instrs(temp_global, temp_val, LF_char_global, variable_gl
 
         Instruction(I32Const, temp_val),
         Instruction(GlobalGet, variable_global),
-        Instruction(store_instr, MemArg()),   # it is depend on the variable type
+        Instruction(store_instr, MemArg()),
         Instruction(I32Const, temp_val + variable_type_size),
         Instruction(I32Const, 10),
         Instruction(I32Store8, MemArg())]
@@ -207,7 +208,7 @@ def get_print_variable_instrs(string_pointer_val, string_pointer_global, temp_va
               Instruction(I32Store, MemArg()),
 
               Instruction(I32Const, string_pointer_val + 4),
-              Instruction(I32Const, variable_type_size + 1),  # 这里加1是因为还有个换行符
+              Instruction(I32Const, variable_type_size + 1),
               Instruction(I32Store, MemArg()),
 
               Instruction(I32Const, 1),
@@ -249,7 +250,7 @@ def instr_instrumentation(expr, binary, global_lists):
             expr[i].args.instrs2 = instr_instrumentation(args.instrs2, binary, global_lists)
         else:
             if expr[i].opcode == Call:
-                funcidx = expr[i].args  # subtract the number of import function
+                funcidx = expr[i].args
 
                 functype_rewriter = SectionRewriter(binary.module)
                 functype = functype_rewriter.get_func_functype(expr[i].args)
@@ -299,7 +300,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + divider_print_instrs + expr[i:]
                 i = i + len(divider_print_instrs)
 
-                # print function index
                 expr.insert(i, Instruction(I32Const, funcidx))
                 i = i + 1
                 store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -311,7 +311,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                 i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # print number count
                 expr.insert(i, Instruction(I32Const, len(params_global_list)))
                 i = i + 1
                 store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -323,24 +322,23 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                 i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # print params
                 for param_global in params_global_list:
-                    expr.insert(i, Instruction(GlobalGet, param_global["id"]))  # push the variable to be print
+                    expr.insert(i, Instruction(GlobalGet, param_global["id"]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
                                                                       param_global["id"], param_global["type"])
 
-                    print_variable_instrs = get_print_variable_instrs(string_pointer_val, string_pointer_global, temp_val, param_global["type"])
-                    restore_instrs = get_restore_instrs(string_pointer_val, string_pointer_global, temp_val, temp_global, LF_char_global, param_global["type"])
+                    print_variable_instrs = get_print_variable_instrs(string_pointer_val, string_pointer_global,
+                                                                      temp_val, param_global["type"])
+                    restore_instrs = get_restore_instrs(string_pointer_val, string_pointer_global, temp_val,
+                                                        temp_global, LF_char_global, param_global["type"])
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # put the original params to stack
                 for param_global in params_global_list:
                     expr.insert(i, Instruction(GlobalGet, param_global["id"]))
                     i += 1
 
-                # instrumentation after call instr
                 results_global_list = []
                 i = i + 1
 
@@ -387,7 +385,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + divider_print_instrs + expr[i:]
                 i = i + len(divider_print_instrs)
 
-                # print function index
                 expr.insert(i, Instruction(I32Const, funcidx))
                 i = i + 1
                 store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -399,7 +396,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                 i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # print number count
                 expr.insert(i, Instruction(I32Const, len(results_global_list)))
                 i = i + 1
                 store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -411,53 +407,34 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                 i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # print results
                 for result_global in results_global_list:
-                    expr.insert(i, Instruction(GlobalGet, result_global["id"]))  # push the variable to be print
+                    expr.insert(i, Instruction(GlobalGet, result_global["id"]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
                                                                       result_global["id"], result_global["type"])
 
-                    print_variable_instrs = get_print_variable_instrs(string_pointer_val, string_pointer_global, temp_val, result_global["type"])
-                    restore_instrs = get_restore_instrs(string_pointer_val, string_pointer_global, temp_val, temp_global, LF_char_global, result_global["type"])
+                    print_variable_instrs = get_print_variable_instrs(string_pointer_val, string_pointer_global,
+                                                                      temp_val, result_global["type"])
+                    restore_instrs = get_restore_instrs(string_pointer_val, string_pointer_global, temp_val,
+                                                        temp_global, LF_char_global, result_global["type"])
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # put the original results to stack
                 for result_global in results_global_list:
                     expr.insert(i, Instruction(GlobalGet, result_global["id"]))
                     i += 1
 
             elif expr[i].opcode == CallIndirect:
-                # funcidx_instr = expr[i - 1]
-                # if funcidx_instr.opcode != I32Const:
-                #     raise Exception("call indirect 前面的指令不是i32const")
-                # is_exist = check_import_exist(binary, elemidx=funcidx_instr.args)
-                # if is_exist == False:
-                #     functype_rewriter = SectionRewriter(binary.module)
-                #     functype = functype_rewriter.get_typesec_functype(expr[i].args)
-                #     # 这里import func的参数最后一个要加个i32，因为要有个标志
-                #     import_funcidx = import_rewriter.append_import_function(
-                #         "instrumentation" "get_call_indirect_" + funcidx_instr.args + "_args",
-                #         functype.param_types + [ValTypeI32],
-                #         functype.result_types)
-                #     expr.insert(i, Instruction(I32Const, funcidx_instr.args))
-                #     i += 1
-                #     expr.insert(i, Instruction(Call, import_funcidx))
-                #     i += 1
-                # else:
-                #     raise Exception("出现了重复的call_indirect")
-                typeidx = expr[i].args  # subtract the number of import function
+
+                typeidx = expr[i].args
 
                 functype = binary.module.type_sec[expr[i].args]
 
                 params_global_list = []
 
-                # store the param of call_indirect
                 get_indirect_funcidx_instr = Instruction(GlobalSet, indirect_funcidx_global)
                 expr.insert(i, get_indirect_funcidx_instr)
                 i = i + 1
-
 
                 for val_type in functype.param_types:
                     if val_type == ValTypeI32:
@@ -502,7 +479,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + divider_print_instrs + expr[i:]
                 i = i + len(divider_print_instrs)
 
-                # print negative element idx
                 expr.insert(i, Instruction(I32Const, 0))
                 i = i + 1
                 expr.insert(i, Instruction(GlobalGet, indirect_funcidx_global))
@@ -519,7 +495,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                 i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # print number count
                 expr.insert(i, Instruction(I32Const, len(params_global_list)))
                 i = i + 1
                 store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -531,9 +506,8 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                 i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # print params
                 for param_global in params_global_list:
-                    expr.insert(i, Instruction(GlobalGet, param_global["id"]))  # push the variable to be print
+                    expr.insert(i, Instruction(GlobalGet, param_global["id"]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
                                                                       param_global["id"], param_global["type"])
@@ -545,7 +519,6 @@ def instr_instrumentation(expr, binary, global_lists):
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # put the original params to stack
                 for param_global in params_global_list:
                     expr.insert(i, Instruction(GlobalGet, param_global["id"]))
                     i += 1
@@ -553,7 +526,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr.insert(i, Instruction(GlobalGet, indirect_funcidx_global))
                 i += 1
 
-                # instrumentation after call_indirect instr
                 results_global_list = []
                 i = i + 1
 
@@ -600,7 +572,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + divider_print_instrs + expr[i:]
                 i = i + len(divider_print_instrs)
 
-                # print negative element idx
                 expr.insert(i, Instruction(I32Const, 0))
                 i = i + 1
                 expr.insert(i, Instruction(GlobalGet, indirect_funcidx_global))
@@ -617,7 +588,6 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                 i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # print number count
                 expr.insert(i, Instruction(I32Const, len(results_global_list)))
                 i = i + 1
                 store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -629,9 +599,8 @@ def instr_instrumentation(expr, binary, global_lists):
                 expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                 i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # print results
                 for result_global in results_global_list:
-                    expr.insert(i, Instruction(GlobalGet, result_global["id"]))  # push the variable to be print
+                    expr.insert(i, Instruction(GlobalGet, result_global["id"]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
                                                                       result_global["id"], result_global["type"])
@@ -643,7 +612,6 @@ def instr_instrumentation(expr, binary, global_lists):
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
 
-                # put the original results to stack
                 for result_global in results_global_list:
                     expr.insert(i, Instruction(GlobalGet, result_global["id"]))
                     i += 1
@@ -667,7 +635,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
             expr[i].args.instrs1 = function_instrumentation(args.instrs1, binary, funcidx, global_list)
             expr[i].args.instrs2 = function_instrumentation(args.instrs2, binary, funcidx, global_list)
             i = i + 1
-        # 这里要跳过函数调用指令
+
         elif expr[i].opcode in [Call, CallIndirect]:
             i = i + 1
         else:
@@ -685,7 +653,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                                     divider_offset_val)
                     expr = expr[:i] + divider_print_instrs + expr[i:]
                     i = i + len(divider_print_instrs)
-                    # print instr opcode
+
                     expr.insert(i, Instruction(I32Const, instr.opcode))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -698,7 +666,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeI32)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # print stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[0]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -711,7 +679,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeI32)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # restore stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[0]))
                 elif instr_results_type == [ValTypeI64]:
                     i = i + 1
@@ -721,7 +689,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                                     divider_offset_val)
                     expr = expr[:i] + divider_print_instrs + expr[i:]
                     i = i + len(divider_print_instrs)
-                    # print instr opcode
+
                     expr.insert(i, Instruction(I32Const, instr.opcode))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -734,7 +702,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeI32)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # print stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[1]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -747,7 +715,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeI64)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # restore stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[1]))
                 elif instr_results_type == [ValTypeF32]:
                     i = i + 1
@@ -757,7 +725,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                                     divider_offset_val)
                     expr = expr[:i] + divider_print_instrs + expr[i:]
                     i = i + len(divider_print_instrs)
-                    # print instr opcode
+
                     expr.insert(i, Instruction(I32Const, instr.opcode))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -770,7 +738,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeI32)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # print stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[2]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -783,7 +751,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeF32)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # restore stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[2]))
                 elif instr_results_type == [ValTypeF64]:
                     i = i + 1
@@ -793,7 +761,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                                     divider_offset_val)
                     expr = expr[:i] + divider_print_instrs + expr[i:]
                     i = i + len(divider_print_instrs)
-                    # print instr opcode
+
                     expr.insert(i, Instruction(I32Const, instr.opcode))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -806,7 +774,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeI32)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # print stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[3]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -819,7 +787,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeF64)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # restore stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[3]))
                 elif instr_results_type == [ValTypeV128]:
                     i = i + 1
@@ -829,7 +797,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                                     divider_offset_val)
                     expr = expr[:i] + divider_print_instrs + expr[i:]
                     i = i + len(divider_print_instrs)
-                    # print instr opcode
+
                     expr.insert(i, Instruction(I32Const, instr.opcode))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -842,7 +810,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeI32)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # print stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[4]))
                     i = i + 1
                     store_variable_instrs = get_store_variable_instrs(temp_global, temp_val, LF_char_global,
@@ -855,7 +823,7 @@ def function_instrumentation(expr, binary, funcidx, global_list):
                                                         LF_char_global, ValTypeV128)
                     expr = expr[:i] + store_variable_instrs + print_variable_instrs + restore_instrs + expr[i:]
                     i = i + len(store_variable_instrs + print_variable_instrs + restore_instrs)
-                    # restore stack value
+
                     expr.insert(i, Instruction(GlobalGet, global_list[4]))
 
             i = i + 1

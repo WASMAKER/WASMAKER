@@ -1,19 +1,11 @@
-# -*- coding: UTF-8 -*-
-#
-"""
-@Project ：wasm-WASMaker
-@File    ：opcodes_stack.py
-@Author  ：格友
-"""
-
 from ..parser.opcodes import *
 
-stack_change = [-100] * 256  # len = 256
-# 建立指令字节码到指令字节码的映射
+stack_change = [-100] * 256
+
 stack_change[Unreachable] = 0
 stack_change[Nop] = 0
-stack_change[Block] = "block" #
-stack_change[Loop] = "loop" #
+stack_change[Block] = "block"
+stack_change[Loop] = "loop"
 stack_change[If] = "if"
 stack_change[Else_] = "else"
 stack_change[End_] = "end"
@@ -22,8 +14,8 @@ stack_change[BrIf] = -1
 stack_change[BrTable] = -1
 
 stack_change[Return] = 0
-stack_change[Call] = "call" #
-stack_change[CallIndirect] = "call_indirect" #
+stack_change[Call] = "call"
+stack_change[CallIndirect] = "call_indirect"
 
 stack_change[Drop] = -1
 stack_change[Select] = -2
@@ -189,5 +181,3 @@ stack_change[I32Extend16S] = 0
 stack_change[I64Extend8S] = 0
 stack_change[I64Extend16S] = 0
 stack_change[I64Extend32S] = 0
-# SIMD指令
-

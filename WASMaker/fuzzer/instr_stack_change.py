@@ -42,7 +42,7 @@ def unreachable(binary, args, inner_func_id):
 
 
 def nop(binary, args, inner_func_id):
-    instr_type = {'params':[], 'results':[]}
+    instr_type = {'params': [], 'results': []}
     return instr_type, None
 
 
@@ -136,7 +136,7 @@ def br_table(binary, args, inner_func_id):
     instr_type = {'params': [ValTypeI32], 'results': []}
     return instr_type, None
 
-# return 的处理是，在分割基本块的时候就就不把它放到基本块中
+
 def control_return(binary, args, inner_func_id):
     instr_type = {'params': [], 'results': []}
     return instr_type, None
@@ -155,9 +155,11 @@ def call(binary, args, inner_func_id):
             instr_results.append(result_type)
         functype = binary.module.type_sec[import_func_list[args].desc.func_type]
     else:
-        for param_type in binary.module.type_sec[binary.module.func_sec[args - binary.get_import_func_num()]].param_types:
+        for param_type in binary.module.type_sec[
+            binary.module.func_sec[args - binary.get_import_func_num()]].param_types:
             instr_params.append(param_type)
-        for result_type in binary.module.type_sec[binary.module.func_sec[args - binary.get_import_func_num()]].result_types:
+        for result_type in binary.module.type_sec[
+            binary.module.func_sec[args - binary.get_import_func_num()]].result_types:
             instr_results.append(result_type)
         functype = binary.module.type_sec[binary.module.func_sec[args - binary.get_import_func_num()]]
 
@@ -176,7 +178,7 @@ def call_indirect(binary, args, inner_func_id):
     for result_type in binary.module.type_sec[args].result_types:
         instr_results.append(result_type)
     instr_params.append(ValTypeI32)
-    # call_indirect的context的functype和指令的type不一样
+
     functype = binary.module.type_sec[args]
 
     instr_type = {'params': instr_params, 'results': instr_results}
@@ -207,7 +209,6 @@ def memory_grow(binary, args, inner_func_id):
     return instr_type, context
 
 
-# load
 def i32_load(binary, args, inner_func_id):
     instr_params = [ValTypeI32]
     instr_results = [ValTypeI32]
@@ -404,7 +405,6 @@ def i64_load_32_u(binary, args, inner_func_id):
     return instr_type, context
 
 
-# store
 def i32_store(binary, args, inner_func_id):
     instr_params = [ValTypeI32, ValTypeI32]
     instr_results = []
@@ -459,7 +459,6 @@ def f64_store(binary, args, inner_func_id):
                 memory_limit.append(import_item.desc.mem)
     context = Context(memory=memory_limit)
     return instr_type, context
-
 
 
 def i32_store_8(binary, args, inner_func_id):
@@ -693,7 +692,7 @@ def f64_const(binary, args, inner_func_id):
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
 
-# i32 test & rel
+
 def i32_eqz(binary, args, inner_func_id):
     instr_params = [ValTypeI32]
     instr_results = [ValTypeI32]
@@ -771,7 +770,6 @@ def i32_ge_u(binary, args, inner_func_id):
     return instr_type, None
 
 
-# i64 test & rel
 def i64_eqz(binary, args, inner_func_id):
     instr_params = [ValTypeI64]
     instr_results = [ValTypeI32]
@@ -849,7 +847,6 @@ def i64_ge_u(binary, args, inner_func_id):
     return instr_type, None
 
 
-# f32 rel
 def f32_eq(binary, args, inner_func_id):
     instr_params = [ValTypeF32, ValTypeF32]
     instr_results = [ValTypeI32]
@@ -892,7 +889,6 @@ def f32_ge(binary, args, inner_func_id):
     return instr_type, None
 
 
-# f64 rel
 def f64_eq(binary, args, inner_func_id):
     instr_params = [ValTypeF64, ValTypeF64]
     instr_results = [ValTypeI32]
@@ -935,7 +931,6 @@ def f64_ge(binary, args, inner_func_id):
     return instr_type, None
 
 
-# i32 arithmetic & bitwise
 def i32_clz(binary, args, inner_func_id):
     instr_params = [ValTypeI32]
     instr_results = [ValTypeI32]
@@ -1061,7 +1056,7 @@ def i32_rotr(binary, args, inner_func_id):
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
 
-# i64 arithmetic & bitwise
+
 def i64_clz(binary, args, inner_func_id):
     instr_params = [ValTypeI64]
     instr_results = [ValTypeI64]
@@ -1188,7 +1183,6 @@ def i64_rotr(binary, args, inner_func_id):
     return instr_type, None
 
 
-# f32 arithmetic
 def f32_abs(binary, args, inner_func_id):
     instr_params = [ValTypeF32]
     instr_results = [ValTypeF32]
@@ -1287,7 +1281,6 @@ def f32_copysign(binary, args, inner_func_id):
     return instr_type, None
 
 
-# f64 arithmetic
 def f64_abs(binary, args, inner_func_id):
     instr_params = [ValTypeF64]
     instr_results = [ValTypeF64]
@@ -1386,13 +1379,11 @@ def f64_copysign(binary, args, inner_func_id):
     return instr_type, None
 
 
-# conversions
 def i32_wrap_i64(binary, args, inner_func_id):
     instr_params = [ValTypeI64]
     instr_results = [ValTypeI32]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
-
 
 
 def i32_trunc_f32_s(binary, args, inner_func_id):
@@ -1428,7 +1419,6 @@ def i64_extend_i32_s(binary, args, inner_func_id):
     instr_results = [ValTypeI64]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
-
 
 
 def i64_extend_i32_u(binary, args, inner_func_id):
@@ -1604,86 +1594,120 @@ def i32_trunc_sat_f32_s(binary, args, inner_func_id):
     instr_results = [ValTypeI32]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def i32_trunc_sat_f32_u(binary, args, inner_func_id):
     instr_params = [ValTypeF32]
     instr_results = [ValTypeI32]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def i32_trunc_sat_f64_s(binary, args, inner_func_id):
     instr_params = [ValTypeF64]
     instr_results = [ValTypeI32]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def i32_trunc_sat_f64_u(binary, args, inner_func_id):
     instr_params = [ValTypeF64]
     instr_results = [ValTypeI32]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def i64_trunc_sat_f32_s(binary, args, inner_func_id):
     instr_params = [ValTypeF32]
     instr_results = [ValTypeI64]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def i64_trunc_sat_f32_u(binary, args, inner_func_id):
     instr_params = [ValTypeF32]
     instr_results = [ValTypeI64]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def i64_trunc_sat_f64_s(binary, args, inner_func_id):
     instr_params = [ValTypeF64]
     instr_results = [ValTypeI64]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def i64_trunc_sat_f64_u(binary, args, inner_func_id):
     instr_params = [ValTypeF64]
     instr_results = [ValTypeI64]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def memory_init(binary, args, inner_func_id):
     instr_params = [ValTypeI32, ValTypeI32, ValTypeI32]
     instr_results = []
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def data_drop(binary, args, inner_func_id):
     instr_params = []
     instr_results = []
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def memory_copy(binary, args, inner_func_id):
     instr_params = [ValTypeI32, ValTypeI32, ValTypeI32]
     instr_results = []
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def memory_fill(binary, args, inner_func_id):
     instr_params = [ValTypeI32, ValTypeI32, ValTypeI32]
     instr_results = []
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def table_init(binary, args, inner_func_id):
     instr_params = [ValTypeI32, ValTypeI32, ValTypeI32]
     instr_results = []
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def elem_drop(binary, args, inner_func_id):
     instr_params = []
     instr_results = []
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def table_copy(binary, args, inner_func_id):
     instr_params = [ValTypeI32, ValTypeI32, ValTypeI32]
     instr_results = []
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def table_grow(binary, args, inner_func_id):
     instr_params = [ValTypeI32]
     instr_results = [ValTypeI32]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def table_size(binary, args, inner_func_id):
     instr_params = []
     instr_results = [ValTypeI32]
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
+
 def table_fill(binary, args, inner_func_id):
     instr_params = [ValTypeI32, ValTypeI32]
     instr_results = []
@@ -1692,14 +1716,13 @@ def table_fill(binary, args, inner_func_id):
 
 
 def select_t(binary, args, inner_func_id):
-    # t 是type，约束前两个参数的类型
     instr_params = [ValTypeAny, ValTypeAny, ValTypeAny]
     instr_results = [ValTypeAny]
 
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
 
-# ==========================================================================
+
 def table_get(binary, args, inner_func_id):
     instr_params = [ValTypeI32]
     instr_results = [ValTypeAny]
@@ -1909,7 +1932,6 @@ def ref_is_null(binary, args, inner_func_id):
 
 
 def ref_func(binary, args, inner_func_id):
-    # TODO: Implement the stack change for this instruction
     pass
 
 
@@ -1951,6 +1973,7 @@ def v128_load16x4_u(binary, args, inner_func_id):
 
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
 
 def v128_load32x2_s(binary, args, inner_func_id):
     instr_params = [ValTypeI32]
@@ -2015,7 +2038,7 @@ def v128_const(binary, args, inner_func_id):
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
 
-# -----------------------------------
+
 def i8x16_shuffle(binary, args, inner_func_id):
     instr_params = [ValTypeV128, ValTypeV128]
     instr_results = [ValTypeV128]
@@ -2103,6 +2126,7 @@ def i8x16_replace_lane(binary, args, inner_func_id):
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
 
+
 def i16x8_extract_lane_s(binary, args, inner_func_id):
     instr_params = [ValTypeV128]
     instr_results = [ValTypeI32]
@@ -2133,6 +2157,7 @@ def i32x4_extract_lane(binary, args, inner_func_id):
 
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
+
 
 def i32x4_replace_lane(binary, args, inner_func_id):
     instr_params = [ValTypeV128, ValTypeI32]
@@ -3796,4 +3821,3 @@ def f64x2_convert_low_i32x4_u(binary, args, inner_func_id):
 
     instr_type = {'params': instr_params, 'results': instr_results}
     return instr_type, None
-
