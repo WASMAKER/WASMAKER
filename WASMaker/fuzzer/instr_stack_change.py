@@ -1,8 +1,7 @@
-import math
 from WASMaker.parser.types import ValTypeF64, ValTypeF32, ValTypeI32, ValTypeI64, ValTypeAny, ValTypeV128
 
 
-class Context():
+class Context:
     def __init__(self, local_variable=None, functype=None, global_variable=None, memory=None):
         self.local_variable = local_variable
         self.functype = functype

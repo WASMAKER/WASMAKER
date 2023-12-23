@@ -4,8 +4,6 @@ from WASMaker.parser import reader
 from WASMaker.parser.module import *
 import struct
 from WASMaker.parser.opcodes import *
-import os
-from WASMaker.parser.types import val_type_to_str, GlobalType
 from WASMaker.parser.instruction import Instruction
 
 

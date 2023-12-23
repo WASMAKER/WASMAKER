@@ -1,8 +1,6 @@
 from WASMaker.parser.opcodes import Block, Loop, If, Call, CallIndirect
-from BREWasm.rewriter.semantics_rewriter import SectionRewriter
-from BREWasm.parser.opcodes import V128Store, V128Load
+from WASMaker.parser.opcodes import V128Store, V128Load
 from WASMaker.parser.instruction import Instruction, MemArg
-from BREWasm.parser.types import *
 from BREWasm.rewriter.section_rewriter import *
 from WASMaker.fuzzer.instructions import *
 
@@ -425,8 +423,6 @@ def instr_instrumentation(expr, binary, global_lists):
                     i += 1
 
             elif expr[i].opcode == CallIndirect:
-
-                typeidx = expr[i].args
 
                 functype = binary.module.type_sec[expr[i].args]
 
