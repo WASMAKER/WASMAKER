@@ -1,9 +1,16 @@
 # WASMaker
 
+# Getting Started
+In order to generate and store AST, you need to first install [MongoDB](https://www.mongodb.com/docs/manual/installation/) and get Wasm binaries from [WasmBench](https://github.com/sola-st/WasmBench).
+
+The script [corpus_preprocess.py](https://github.com/WASMAKER/WASMAKER/blob/main/WASMaker/corpus_preprocess.py) parses WasmBench binaries and stores ASTs in MongoDB. 
+And the [binary_generator.py](https://github.com/WASMAKER/WASMAKER/blob/main/WASMaker/binary_generator.py) will generate Wasm binaries and feed them to each Wasm runtime for execution. 
+
+Finally, the output of the runtime is stored in runtime_output.txt.
 
 
 
-## Issues
+## Comfirmed Issues
 - **wasmtime**
 [#7558](https://github.com/bytecodealliance/wasmtime/issues/7558)
 - **wamr**
